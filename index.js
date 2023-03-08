@@ -1,46 +1,38 @@
 const baseUrl = 'https://6407755f862956433e7052f4.mockapi.io/users'
 
-const loginForm = document.querySelector('.login-form')
-const submitBtn = document.querySelector('.submit-button')
+const submitButton = document.querySelector('.submit-button');
+const loginForm = document.querySelector('.login-form');
 
-const user = {}
 
-const handleInputChange = e => {
-  const { name, value } = e.target
-  if (name === 'email') {
-    user.email = value
-  } else if (name === 'name') {
-    user.name = value
-  } else if (name === 'password') {
-    user.password = value
-  }
-}
+const onValidForm = () => {
+  submitButton.disabled = !loginForm.reportValidity();
+};
 
-loginForm.addEventListener('input', () => {
-  const isFormValid = loginForm.reportValidity()
-  submitBtn.disabled = !isFormValid
-})
 
-function createUser(userData) {
-  return fetch(baseUrl, {
+const userData = (formData) =>
+  fetch(baseUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
     },
-    body: JSON.stringify(userData),
-  })
-}
+    body: JSON.stringify(formData),
+  });
 
-submitBtn.addEventListener('click', event => {
-  event.preventDefault()
 
-  const formValues = Object.fromEntries([...new FormData(loginForm)])
+const onCreateUser = (e) => {
+  e.preventDefault();
+  const formData = [...new FormData(loginForm)].reduce(
+    (acc, [prop, value]) => ({ ...acc, [prop]: value }),
+    {}
+  );
+  userData(formData)
+    .then((response) => response.json())
+    .then((dataOfUser) => {
+      alert(JSON.stringify(dataOfUser));
+      loginForm.reset();
+      submitButton.disabled = true;
+    });
+};
 
-  user.email = formValues.email
-  user.name = formValues.name
-  user.password = formValues.password
-
-  createUser(user).then(() => {
-    alert(JSON.stringify(user))
-  })
-})
+loginForm.addEventListener('submit', onCreateUser);
+loginForm.addEventListener('input', onValidForm);
