@@ -14,7 +14,6 @@ const handleInputChange = e => {
   } else if (name === 'password') {
     user.password = value
   }
-  console.log(user)
 }
 
 loginForm.addEventListener('input', () => {
